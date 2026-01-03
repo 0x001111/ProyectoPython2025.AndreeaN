@@ -7,7 +7,6 @@ def insertarLibro():
         print("Introduce un titulo: ");
         return
     
-<<<<<<< HEAD
 
     encontrado = False; 
 
@@ -19,8 +18,6 @@ def insertarLibro():
             
    
 
-=======
->>>>>>> c3a41aa5d363290b7bc8c37a8459636415027442
     autor = input("introduce un autor")
     año = input("introduce un año")
     tipo = input("introduce el tipo de libro")
@@ -28,17 +25,12 @@ def insertarLibro():
     libro = {"titulo" : titulo , "autor" : autor , "año" : año, "tipo" : tipo};
     libros.append(libro);
     
-<<<<<<< HEAD
     print("libro '{titulo}' añadido correctamente");
-=======
-    print(libros);
->>>>>>> c3a41aa5d363290b7bc8c37a8459636415027442
     
     
 def buscarLibro():
     
     entrada = input("Introduzca nombre del libro a buscar");
-<<<<<<< HEAD
     for libro in libros:
         if libro['titulo'.lower() == entrada.lower()]:
             return libro
@@ -103,18 +95,6 @@ def eliminarLibro():
         print("No se ha encontrado el libro con ese titulo");
 
 
-=======
-    
-
-def modificarLibro():
-    
-    entrada = input("Introduzca libro a modificar")
-    
-def eliminarLibro():
-    
-    entrada = input("Introduzca libro a eliminar")
-    
->>>>>>> c3a41aa5d363290b7bc8c37a8459636415027442
 def mostrarDatos():
     encontrado = False
     print("----------------------");
@@ -137,13 +117,8 @@ def mostrarDatos():
             encontrado = True
             break
         
-<<<<<<< HEAD
         if not encontrado:
             print("introduzca un titulo válido")
-=======
-    if not encontrado:
-        print("introduzca un titulo válido")
->>>>>>> c3a41aa5d363290b7bc8c37a8459636415027442
                     
     
     
