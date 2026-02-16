@@ -1,0 +1,15 @@
+[
+    {
+        "titulo": "Libro1",
+        "autor": "Andrea",
+        "año": "2006",
+        "tipo": "Normal"
+    },
+    {
+        "titulo": "LibroDigital",
+        "autor": "Andrea",
+        "año": "2006",
+        "tipo": "digital",
+        "formato": "PDF"
+    }
+]
