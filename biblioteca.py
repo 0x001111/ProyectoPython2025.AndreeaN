@@ -8,7 +8,6 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-
 class Biblioteca:
     FICHERO = "libros.json"
 
@@ -31,6 +30,14 @@ class Biblioteca:
                             d["año"], 
                             d["tipo"], 
                             d["formato"]
+                        )
+                    elif d.get("tipo") == "Especial":
+                        obj = LibroEspecial(
+                            d["titulo"], 
+                            d["autor"], 
+                            d["año"], 
+                            d.get("especialidad", "General"), 
+                            12
                         )
                     else:
                         # Si no, crear libro normal
@@ -97,6 +104,7 @@ class Biblioteca:
         total_libros = len(self.libros)
         contador_digitales = sum(1 for l in self.libros if isinstance(l, LibroDigital))
         contador_especiales = sum(1 for l in self.libros if isinstance(l, LibroEspecial))
+        
         # 4. Mostrar resumen
         print(f"\n--- RESUMEN ---")
         print(f"Total libros: {total_libros}")
@@ -115,55 +123,6 @@ class Biblioteca:
         print('\n--- Autores en la Biblioteca (Sin Repetir) ---')
         for autor in sorted(conjunto_autores):
             print(f"- {autor}")
-
-
-    def insertarNuevo(self):
-        """Añade un nuevo libro a la biblioteca"""
-        print("\n--- AÑADIR LIBRO ---")
-        titulo = input("Título: ").strip()
-        
-        if not titulo:
-            print("El título no puede estar vacío.")
-            return
-        
-        # Búsqueda parcial para avisar de duplicados
-        for libro in self.libros:
-            if titulo.lower() in libro.titulo.lower(): 
-                print(f"Aviso: Ya existe algo parecido llamado '{libro.titulo}'")
-        
-        autor = input("Autor: ").strip()
-        if not autor:
-            print("El autor no puede estar vacío.")
-            return
-        
-        año = input("Año: ").strip()
-        if not año:
-            print("El año no puede estar vacío.")
-            return
-        
-        # Tipo de libro
-        print("\n1. Normal (físico)")
-        print("2. Digital")
-        print("3.Especial")
-        tipo_opcion = input("Selecciona tipo (1,2,3): ").strip()
-        
-        if tipo_opcion == "2":
-            formato = input("Formato (PDF/WORD): ").strip().upper()
-            if not formato:
-                formato = "PDF"
-            nuevo = LibroDigital(titulo, autor, año, "digital", formato)
-        elif tipo_opcion == "3": 
-            tipo_especialidad = input("Que tipo de especialidad tiene?")
-            nuevo = LibroEspecial(titulo, autor, año, tipo_especialidad, 12)
-        else:
-            nuevo = Libro(titulo, autor, año, "Normal")
-
-        
-        # Guardar
-        self.libros.append(nuevo)
-        self.guardar()
-        logging.info(f"Libro añadido: {titulo}")
-        print("Libro guardado con éxito")
 
     def insertar(self):
         """Añade un nuevo libro a la biblioteca"""
@@ -192,16 +151,20 @@ class Biblioteca:
         # Tipo de libro
         print("\n1. Normal (físico)")
         print("2. Digital")
-        tipo_opcion = input("Selecciona tipo (1 o 2): ").strip()
+        print("3. Especial")
+        tipo_opcion = input("Selecciona tipo (1, 2, 3): ").strip()
         
         if tipo_opcion == "2":
             formato = input("Formato (PDF/WORD): ").strip().upper()
             if not formato:
                 formato = "PDF"
             nuevo = LibroDigital(titulo, autor, año, "digital", formato)
+        elif tipo_opcion == "3": 
+            tipo_especialidad = input("Que tipo de especialidad tiene?: ").strip()
+            nuevo = LibroEspecial(titulo, autor, año, tipo_especialidad, 12)
         else:
             nuevo = Libro(titulo, autor, año, "Normal")
-        
+
         # Guardar
         self.libros.append(nuevo)
         self.guardar()
@@ -209,13 +172,13 @@ class Biblioteca:
         print("Libro guardado con éxito")
 
     def mostrar(self):
-        """Muestra libros y permite buscar"""
+        """Muestra libros y permite realizar una búsqueda parcial"""
         if not self.libros:
             print("\nNo hay libros en la biblioteca.")
             return
         
         print("\n--- BUSCAR LIBROS ---")
-        busqueda = input("Buscar título (deja vacío para ver todos): ").strip().lower()
+        busqueda = input("Buscar título o autor (deja vacío para ver todos): ").strip().lower()
         
         if not busqueda:
             # Mostrar todos
@@ -224,10 +187,7 @@ class Biblioteca:
                 print(f"{i}. {libro}")
         else:
             # Búsqueda parcial
-            encontrados = []
-            for libro in self.libros:
-                if busqueda in libro.titulo.lower():
-                    encontrados.append(libro)
+            encontrados = [l for l in self.libros if busqueda in l.titulo.lower() or busqueda in l.autor.lower()]
             
             if encontrados:
                 print(f"\n--- Resultados: {len(encontrados)} ---")
