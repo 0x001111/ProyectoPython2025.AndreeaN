@@ -1,6 +1,6 @@
 import json
 import logging
-from libro import Libro, LibroDigital
+from libro import Libro, LibroDigital, LibroEspecial
 
 logging.basicConfig(
     filename="app.log",
@@ -96,12 +96,13 @@ class Biblioteca:
         # 3. Calcular totales
         total_libros = len(self.libros)
         contador_digitales = sum(1 for l in self.libros if isinstance(l, LibroDigital))
-        
+        contador_especiales = sum(1 for l in self.libros if isinstance(l, LibroEspecial))
         # 4. Mostrar resumen
         print(f"\n--- RESUMEN ---")
         print(f"Total libros: {total_libros}")
         print(f"Libros digitales: {contador_digitales}")
         print(f"Libros físicos: {total_libros - contador_digitales}")
+        print(f"Libros Especiales: {contador_especiales}")
     
     def mostrar_autores_unicos(self):
         """Muestra todos los autores sin repetir"""
@@ -114,6 +115,55 @@ class Biblioteca:
         print('\n--- Autores en la Biblioteca (Sin Repetir) ---')
         for autor in sorted(conjunto_autores):
             print(f"- {autor}")
+
+
+    def insertarNuevo(self):
+        """Añade un nuevo libro a la biblioteca"""
+        print("\n--- AÑADIR LIBRO ---")
+        titulo = input("Título: ").strip()
+        
+        if not titulo:
+            print("El título no puede estar vacío.")
+            return
+        
+        # Búsqueda parcial para avisar de duplicados
+        for libro in self.libros:
+            if titulo.lower() in libro.titulo.lower(): 
+                print(f"Aviso: Ya existe algo parecido llamado '{libro.titulo}'")
+        
+        autor = input("Autor: ").strip()
+        if not autor:
+            print("El autor no puede estar vacío.")
+            return
+        
+        año = input("Año: ").strip()
+        if not año:
+            print("El año no puede estar vacío.")
+            return
+        
+        # Tipo de libro
+        print("\n1. Normal (físico)")
+        print("2. Digital")
+        print("3.Especial")
+        tipo_opcion = input("Selecciona tipo (1,2,3): ").strip()
+        
+        if tipo_opcion == "2":
+            formato = input("Formato (PDF/WORD): ").strip().upper()
+            if not formato:
+                formato = "PDF"
+            nuevo = LibroDigital(titulo, autor, año, "digital", formato)
+        elif tipo_opcion == "3": 
+            tipo_especialidad = input("Que tipo de especialidad tiene?")
+            nuevo = LibroEspecial(titulo, autor, año, tipo_especialidad, 12)
+        else:
+            nuevo = Libro(titulo, autor, año, "Normal")
+
+        
+        # Guardar
+        self.libros.append(nuevo)
+        self.guardar()
+        logging.info(f"Libro añadido: {titulo}")
+        print("Libro guardado con éxito")
 
     def insertar(self):
         """Añade un nuevo libro a la biblioteca"""

@@ -1,3 +1,5 @@
+import json
+
 class Libro: 
     def __init__(self, titulo, autor, año, tipo):
         self.titulo = titulo
@@ -26,8 +28,7 @@ class Libro:
             data["año"],
             data["tipo"]
         )
-        
-        
+    
 class LibroDigital(Libro):
     def __init__(self, titulo, autor, año, tipo, formato):
         super().__init__(titulo, autor, año, tipo)
@@ -41,3 +42,14 @@ class LibroDigital(Libro):
         d = super().to_dict()
         d.update({"tipo": "digital", "formato": self.formato})
         return d
+    
+
+class LibroEspecial(Libro):
+    def __init__(self, titulo, autor, año, tipo, descuento_vip):
+        super().__init__(titulo, autor, año, tipo)
+        self.descuento_vip = descuento_vip
+
+    def __str__(self):
+        return f"[LIBRO ESPECIAL] {self.titulo} ({self.año}) - {self.autor} - {self.tipo} - DESCUENTO POR VIP: {self.descuento_vip}"
+    
+    
