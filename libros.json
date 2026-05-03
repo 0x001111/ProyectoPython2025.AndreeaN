@@ -1,15 +1,12 @@
-[
-    {
-        "titulo": "Libro1",
-        "autor": "Andrea",
-        "año": "2006",
-        "tipo": "Normal"
-    },
-    {
-        "titulo": "LibroDigital",
-        "autor": "Andrea",
-        "año": "2006",
-        "tipo": "digital",
-        "formato": "PDF"
-    }
-]
+{
+    "items": [
+        {
+            "titulo": "Hp",
+            "autor": "JK ROWLING",
+            "año": "2000",
+            "tipo": "Normal",
+            "cantidad": 10
+        }
+    ],
+    "fecha_ultimo_guardado": "21/04/2026 12:33:39"
+}

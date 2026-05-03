@@ -13,7 +13,8 @@ def main():
             4. Eliminar libro
             5. Mostrar Autores (Sin repetidos)
             6. Generar Reporte
-            7. Salir
+            7. Calcular Inversión total de un tipo de libro en específico
+            8. Salir
             """)
 
         opcion = input("Elige una opción: ").strip()
@@ -28,11 +29,13 @@ def main():
             case "4":
                 biblioteca.eliminar()
             case "5":
-                biblioteca.mostrar_autores_unicos()
+                biblioteca.autores_sin_repetir()
             case "6":
                 biblioteca.generar_reporte()
             case "7":
-                print("Saliendo...")
+                biblioteca.calcular_inversion()
+            case "8":
+                print("saliendo...")
                 break
             case _:
                 print("Opción no válida")
