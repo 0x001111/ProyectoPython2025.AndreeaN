@@ -43,9 +43,9 @@ class LibroDigital(Libro):
     def to_dict(self):
         """Convierte LibroDigital a diccionario, incluyendo formato"""
         d = super().to_dict()
-        d.update({"tipo": "digital", 
-                  "formato": self.formato, 
-                  "stock":self.cantidad
+        d.update({
+                  "tipo": "digital", 
+                  "extra": self.formato
                   })
         return d
     
@@ -58,4 +58,11 @@ class LibroEspecial(Libro):
     def __str__(self):
         return f"[LIBRO ESPECIAL] {self.titulo} ({self.año}) - {self.autor} - {self.tipo} - DESCUENTO POR VIP: {self.descuento_vip} - STOCK: {self.cantidad}"
     
+    def to_dict(self):
+        """Aseguramos que el descuento VIP se guarde en el JSON"""
+        d = super().to_dict()
+        d.update({
+            "extra": self.descuento_vip
+        })
+        return d
     

@@ -16,52 +16,67 @@ class Biblioteca:
         self.libros = []
         self.cargar()
 
+# Estructura: [0]tit, [1]aut, [2]año, [3]tipo, [4]cant, [5]extra
+
     def cargar(self):
-        """Carga los libros detectando si el formato es antiguo (lista) o nuevo (dict)"""
+        """Carga los libros desde el JSON al arreglo self.libros"""
         try:
             with open(self.FICHERO, "r", encoding="utf-8") as f:
                 contenido = json.load(f)
                 
-                # Comprobamos: ¿Es el formato nuevo (diccionario) o el viejo (lista)?
-                if isinstance(contenido, dict):
-                    datos = contenido.get("items", [])
+                # Buscamos la lista de libros dentro de la clave "items"
+                if isinstance(contenido, dict) and "items" in contenido:
+                    datos = contenido["items"]
                 else:
-                    # Es una lista (formato viejo), la usamos directamente
-                    datos = contenido
+                    # Si el JSON es una lista simple (formato viejo)
+                    datos = contenido if isinstance(contenido, list) else []
                 
                 self.libros = []
                 for d in datos:
-                    # Estructura: [0]tit, [1]aut, [2]año, [3]tipo, [4]cant, [5]extra
+                    # Construimos la fila exactamente como la usan tus otros métodos
+                    # Indice: 0:tit, 1:aut, 2:año, 3:tipo, 4:cant, 5:extra
                     fila = [
                         d.get("titulo", "Sin título"),
                         d.get("autor", "Anónimo"),
-                        d.get("año", "N/A"),
-                        d.get("tipo", "Normal"),
+                        d.get("año", 0),
+                        d.get("tipo", "normal"),
                         d.get("cantidad", 1),
-                        d.get("formato") or d.get("especialidad") or d.get("descuento_vip") or ""
+                        # Unificamos cualquier campo extra en la posición [5][cite: 1]
+                        d.get("extra") or d.get("formato") or d.get("especialidad") or ""
                     ]
                     self.libros.append(fila)
-                logging.info("Carga completada con éxito.")
+                logging.info(f"Cargados {len(self.libros)} libros.")
         except (FileNotFoundError, json.JSONDecodeError):
+            # Si el archivo no existe, empezamos con la lista vacía[cite: 1]
             self.libros = []
 
     def guardar(self):
-        """Guarda los libros con metadatos globales de fecha"""
+        """Convierte los arreglos de la lista en diccionarios y los escribe en el archivo[cite: 1]"""
         try:
             ahora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
             lista_para_guardar = []
+            
             for l in self.libros:
+                # Convertimos cada 'fila' (lista) en un diccionario claro para el JSON[cite: 1]
                 info = {
-                    "titulo": l[0], "autor": l[1], "año": l[2],
-                    "tipo": l[3], "cantidad": l[4]
+                    "titulo": l[0],
+                    "autor": l[1],
+                    "año": l[2],
+                    "tipo": l[3],
+                    "cantidad": l[4],
+                    "extra": l[5]
                 }
-                if l[3] == "digital": info["formato"] = l[5]
-                elif l[3] == "especial": info["especialidad"] = l[5]
                 lista_para_guardar.append(info)
 
-            raiz = {"items": lista_para_guardar, "fecha_ultimo_guardado": ahora}
+            # Guardamos con metadatos (útil para el examen)[cite: 1]
+            estructura_final = {
+                "items": lista_para_guardar,
+                "fecha_ultimo_guardado": ahora
+            }
+            
             with open(self.FICHERO, "w", encoding="utf-8") as f:
-                json.dump(raiz, f, indent=4, ensure_ascii=False)
+                json.dump(estructura_final, f, indent=4, ensure_ascii=False)
+            logging.info("Guardado físico realizado con éxito.")
         except Exception as e:
             logging.error(f"Error al guardar: {e}")
 
@@ -165,11 +180,17 @@ class Biblioteca:
             if objeto:
                 print(objeto)
 
+        libro_antiguo = min(self.libros, key=lambda x:x[2])
+        libro_nuevo = max(self.libros, key=lambda x:x[2])
+
+
         ##IMPRIMIR POR PANTALLA 
         print(f"Total stock de libros: {total_stock}")
         print(f"Total de libros digitales: {cant_digitales}")
         print(f"Total de libros especiales: {cant_especiales}")
         print(f"Total de libros normales {cant_normales}")
+        print(f"Libro mas nuevo: {libro_nuevo[0]} - año {libro_nuevo[2]}")
+        print(f"Libro mas antiguo: {libro_antiguo[0]} - año {libro_antiguo[2]}")
         
 
     #INSERTAR LIBRO
@@ -193,6 +214,7 @@ class Biblioteca:
                 except ValueError:
                     print('error, debes introducir un numero entero')
         else:
+
             autor = input("Autor: ")
             
             #validacion del año
@@ -208,7 +230,6 @@ class Biblioteca:
                         break
                 except ValueError:
                     print(f"Introduce un año valido")
-
 
             try: 
                 cant = int(input("Cantidad: "))
@@ -301,60 +322,67 @@ class Biblioteca:
 # cargar y guardar con objetos
 
     def cargar_obj(self):
-        """Carga los libros desde el archivo JSON"""
+        """Carga los libros desde el archivo JSON convirtiéndolos en OBJETOS compatible con metadatos"""
         try:
             with open(self.FICHERO, "r", encoding="utf-8") as f:
-                datos = json.load(f)
+                contenido = json.load(f)
+                
+                # 1. Extraemos la lista de la clave "items" (el método guardar() la crea así)
+                if isinstance(contenido, dict) and "items" in contenido:
+                    datos = contenido["items"]
+                else:
+                    # Por si el JSON fuera una lista simple o estuviera corrupto
+                    datos = contenido if isinstance(contenido, list) else []
+                
                 self.libros = []
                 for d in datos:
-                    # Verificar si es digital Y tiene formato
-                    if d.get("tipo") == "digital" and "formato" in d:
+                    # 2. Extraemos valores base con seguridad (.get)
+                    cant = d.get("cantidad", 1)
+                    tipo = d.get("tipo", "normal").lower()
+                    
+                    if tipo == "digital":
+                        # Buscamos 'extra' o 'formato' para no perder el dato
+                        formato = d.get("extra") or d.get("formato") or "PDF"
                         obj = LibroDigital(
-                            d["titulo"], 
-                            d["autor"], 
-                            d["año"], 
-                            d["tipo"], 
-                            d["formato"]
+                            d["titulo"], d["autor"], d["año"], tipo, 
+                            formato, cant
                         )
-                    elif d.get("tipo") == "Especial":
+                    elif tipo == "especial":
+                        # Buscamos 'extra' o 'descuento_vip'
+                        descuento = d.get("extra") or d.get("descuento_vip") or 0
                         obj = LibroEspecial(
-                            d["titulo"], 
-                            d["autor"], 
-                            d["año"], 
-                            d.get("especialidad", "General"), 
-                            12
+                            d["titulo"], d["autor"], d["año"], tipo, 
+                            descuento, cant
                         )
                     else:
-                        # Si no, crear libro normal
+                        # Libro normal
                         obj = Libro(
-                            d["titulo"], 
-                            d["autor"], 
-                            d["año"], 
-                            d.get("tipo", "Normal")
+                            d["titulo"], d["autor"], d["año"], 
+                            tipo, cant
                         )
                     self.libros.append(obj)
-                logging.info(f"Cargados {len(self.libros)} libros desde {self.FICHERO}")
-        except FileNotFoundError:
-            logging.warning(f"Archivo {self.FICHERO} no encontrado. Creando biblioteca vacía.")
+                
+                logging.info(f"Cargados {len(self.libros)} objetos con éxito.")
+        except (FileNotFoundError, json.JSONDecodeError):
             self.libros = []
-        except json.JSONDecodeError as e:
-            logging.error(f"Error al leer JSON: {e}")
-            self.libros = []
-        except Exception as e:
-            logging.error(f"Error inesperado al cargar: {e}")
-            self.libros = []
+            logging.warning("No se encontró el archivo o está vacío. Iniciando biblioteca vacía.")
 
     def guardar_obj(self):
-        """Guarda los libros en el archivo JSON"""
+        """Guarda los OBJETOS con metadatos para mantener la compatibilidad"""
         try:
+            ahora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            # Convierto cada objeto de la lista a diccionario usando su método to_dict()
+            lista_dict = [l.to_dict() for l in self.libros]
+            
+            # Mantengo la estructura de "items" que he definido en guardar()
+            estructura_final = {
+                "items": lista_dict,
+                "fecha_ultimo_guardado": ahora
+            }
+
             with open(self.FICHERO, "w", encoding="utf-8") as f:
-                json.dump(
-                    [l.to_dict() for l in self.libros],
-                    f,
-                    indent=4,
-                    ensure_ascii=False
-                )
-            logging.info(f"Guardados {len(self.libros)} libros en {self.FICHERO}")
+                json.dump(estructura_final, f, indent=4, ensure_ascii=False)
+            
+            logging.info("Guardado de objetos con metadatos completado.")
         except Exception as e:
-            logging.error(f"Error al guardar: {e}")
-            print(f"Error al guardar: {e}")
+            logging.error(f"Error al guardar objetos: {e}")
