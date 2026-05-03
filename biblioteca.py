@@ -33,7 +33,6 @@ class Biblioteca:
                 
                 self.libros = []
                 for d in datos:
-                    # Construimos la fila exactamente como la usan tus otros métodos
                     # Indice: 0:tit, 1:aut, 2:año, 3:tipo, 4:cant, 5:extra
                     fila = [
                         d.get("titulo", "Sin título"),
@@ -41,13 +40,13 @@ class Biblioteca:
                         d.get("año", 0),
                         d.get("tipo", "normal"),
                         d.get("cantidad", 1),
-                        # Unificamos cualquier campo extra en la posición [5][cite: 1]
+                        # Unifico cualquier campo extra en la posición [5]
                         d.get("extra") or d.get("formato") or d.get("especialidad") or ""
                     ]
                     self.libros.append(fila)
                 logging.info(f"Cargados {len(self.libros)} libros.")
         except (FileNotFoundError, json.JSONDecodeError):
-            # Si el archivo no existe, empezamos con la lista vacía[cite: 1]
+            # Si el archivo no existe, empezamos con la lista vacía
             self.libros = []
 
     def guardar(self):
@@ -57,7 +56,7 @@ class Biblioteca:
             lista_para_guardar = []
             
             for l in self.libros:
-                # Convertimos cada 'fila' (lista) en un diccionario claro para el JSON[cite: 1]
+                # Convierto cada 'fila' (lista) en un diccionario claro para el JSON
                 info = {
                     "titulo": l[0],
                     "autor": l[1],
@@ -68,7 +67,7 @@ class Biblioteca:
                 }
                 lista_para_guardar.append(info)
 
-            # Guardamos con metadatos (útil para el examen)[cite: 1]
+            # Guardar con metadatos
             estructura_final = {
                 "items": lista_para_guardar,
                 "fecha_ultimo_guardado": ahora
